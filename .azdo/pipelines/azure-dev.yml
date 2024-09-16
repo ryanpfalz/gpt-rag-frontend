@@ -1,0 +1,69 @@
+# Run when commits are pushed to mainline branch (main or master)
+# Set this to the mainline branch you are using
+trigger:
+  # - main
+  # - master
+  - none
+# Azure Pipelines workflow to deploy to Azure using azd
+# To configure required secrets and service connection for connecting to Azure, simply run `azd pipeline config --provider azdo`
+# Task "Install azd" needs to install setup-azd extension for azdo - https://marketplace.visualstudio.com/items?itemName=ms-azuretools.azd
+# See below for alternative task to install azd if you can't install above task in your organization
+
+pool:
+  vmImage: ubuntu-latest
+  
+# edit these to match the names of your environments
+variables:
+  dev_env: dev
+  test_env: test
+  prod_env: prod
+  service: frontend
+
+  
+
+stages:
+  - stage: "DeployDev"
+    displayName: "Deploy to the dev environment"
+    jobs:
+      - deployment: DeployDev
+        environment: $(dev_env)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: ./deploy-template.yml
+                  parameters:
+                    azureEnvName: "$(dev_env)"
+                    serviceConnection: "$(dev_env)-$(service)" # if your service connection name is different from the environment name, change this
+
+  - stage: "DeployTest"
+    displayName: "Deploy to the test environment"
+    dependsOn: DeployDev
+    condition: succeeded('DeployDev')
+    jobs:
+      - deployment: DeployTest
+        environment: $(test_env)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: ./deploy-template.yml
+                  parameters:
+                    azureEnvName: "$(test_env)"
+                    serviceConnection: "$(test_env)-$(service)" # if your service connection name is different from the environment name, change this
+
+  - stage: "DeployProd"
+    displayName: "Deploy to the prod environment"
+    dependsOn: DeployTest
+    condition: succeeded('DeployTest')
+    jobs:
+      - deployment: DeployProd
+        environment: $(prod_env)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - template: ./deploy-template.yml
+                  parameters:
+                    azureEnvName: "$(prod_env)"
+                    serviceConnection: "$(prod_env)-$(service)" # if your service connection name is different from the environment name, change this

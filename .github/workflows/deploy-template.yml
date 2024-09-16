@@ -1,0 +1,107 @@
+
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      AZURE_ENV_NAME:
+        required: true
+        type: string
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.AZURE_ENV_NAME }}
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_ENV_NAME: ${{ inputs.AZURE_ENV_NAME }}
+      AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+      # AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }} # uncomment when using client credentials
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install azd
+        uses: Azure/setup-azd@v1.0.0
+
+      - name: Log in with Azure (Federated Credentials)
+        run: |
+          azd auth login `
+            --client-id "$Env:AZURE_CLIENT_ID" `
+            --federated-credential-provider "github" `
+            --tenant-id "$Env:AZURE_TENANT_ID"
+        shell: pwsh
+
+      # uncomment the following block to use client credentials
+      # - name: Log in with Azure (Client Credentials)
+      #   run: |
+      #     azd auth login `
+      #       --client-id "$Env:AZURE_CLIENT_ID" `
+      #       --client-secret "$Env:AZURE_CLIENT_SECRET" `
+      #       --tenant-id "$Env:AZURE_TENANT_ID"
+      #   shell: pwsh
+
+      
+
+      # TODO download and deploy package
+      #   - name: Download Package
+      #     uses: actions/download-artifact@v3
+
+      #   - name: Deploy Services
+      #     run: azd deploy soln --from-package ./package/soln.zip --no-prompt
+      #     env:
+      #       AZURE_ENV_NAME: ${{ inputs.AZURE_ENV_NAME }}
+      #       AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+      #       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+  ##
+  ## [ Darani Sai G@14-08-2024 ] Removed Provision Infrastructure task, If infrastructure not providioned yet, Please gothrough GPT-RAG (v2) steps.
+  ## 
+      
+      # Create new environment
+      - name: Check if '${{ inputs.AZURE_ENV_NAME }}' environment exists
+        id: check-env
+        run: |
+          if azd env list | grep -q ${{ inputs.AZURE_ENV_NAME }}; then
+            echo "${{ inputs.AZURE_ENV_NAME }} environment already exists"
+            echo "::set-output name=env_exists::true"
+          else
+            echo "${{ inputs.AZURE_ENV_NAME }} environment does not exist"
+            echo "::set-output name=env_exists::false"
+          fi
+  
+      - name: Conditional step based on environment check
+        if: steps.check-env.outputs.env_exists == 'false'
+        run: azd env new ${{ inputs.AZURE_ENV_NAME }} --no-prompt
+        env:
+          AZURE_ENV_NAME: ${{ inputs.AZURE_ENV_NAME }}
+          AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+
+      # Refresh environment
+      - name: Refresh env
+        run: azd env refresh
+
+      # Package Services
+      - name: Package Services
+        run: azd package --no-prompt
+        env:
+          AZURE_ENV_NAME: ${{ inputs.AZURE_ENV_NAME }}
+          AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      # Deploy Services
+      # TODO update to only deploy service(s) which have changed with azd deploy <service>
+      - name: Deploy Services
+        run: azd deploy --no-prompt
+        env:
+          AZURE_ENV_NAME: ${{ inputs.AZURE_ENV_NAME }}
+          AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+          AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
