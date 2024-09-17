@@ -22,12 +22,12 @@ jobs:
     with:
       AZURE_ENV_NAME: ghni-dev-4 # edit this to match your environment name
 
-  # deploy-test:
-  #   uses: ./.github/workflows/deploy-template.yml
-  #   secrets: inherit
-  #   needs: [deploy-dev]
-  #   with:
-  #     AZURE_ENV_NAME: ghni-test-4 # edit this to match your environment name
+  deploy-test:
+    uses: ./.github/workflows/deploy-template.yml
+    secrets: inherit
+    needs: [deploy-dev]
+    with:
+      AZURE_ENV_NAME: ghni-test-4 # edit this to match your environment name
 
   # deploy-prod:
   #   uses: ./.github/workflows/deploy-template.yml
