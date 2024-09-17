@@ -1,5 +1,4 @@
-
-name: Deploy
+name: Deploy - Frontend
 
 on:
   workflow_call:
@@ -47,8 +46,6 @@ jobs:
       #       --tenant-id "$Env:AZURE_TENANT_ID"
       #   shell: pwsh
 
-      
-
       # TODO download and deploy package
       #   - name: Download Package
       #     uses: actions/download-artifact@v3
@@ -60,10 +57,10 @@ jobs:
       #       AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
       #       AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
-  ##
-  ## [ Darani Sai G@14-08-2024 ] Removed Provision Infrastructure task, If infrastructure not providioned yet, Please gothrough GPT-RAG (v2) steps.
-  ## 
-      
+      ##
+      ## [ Darani Sai G@14-08-2024 ] Removed Provision Infrastructure task, If infrastructure not providioned yet, Please gothrough GPT-RAG (v2) steps.
+      ##
+
       # Create new environment
       - name: Check if '${{ inputs.AZURE_ENV_NAME }}' environment exists
         id: check-env
@@ -75,15 +72,14 @@ jobs:
             echo "${{ inputs.AZURE_ENV_NAME }} environment does not exist"
             echo "::set-output name=env_exists::false"
           fi
-  
+
       - name: Conditional step based on environment check
-        if: steps.check-env.outputs.env_exists == 'false'
+        # if: steps.check-env.outputs.env_exists == 'false'
         run: azd env new ${{ inputs.AZURE_ENV_NAME }} --no-prompt
         env:
           AZURE_ENV_NAME: ${{ inputs.AZURE_ENV_NAME }}
           AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-
 
       # Refresh environment
       - name: Refresh env

@@ -1,4 +1,4 @@
-name: Multi-Environment Build and Deploy
+name: Multi-Environment Build and Deploy - Frontend
 
 on:
   workflow_dispatch:
@@ -8,7 +8,8 @@ on:
     branches:
       # - main
       # - master
-      - none
+      # - none
+      - dev
 
 permissions:
   id-token: write
@@ -19,18 +20,18 @@ jobs:
     uses: ./.github/workflows/deploy-template.yml
     secrets: inherit
     with:
-      AZURE_ENV_NAME: dev # edit this to match your environment name
+      AZURE_ENV_NAME: ghni-dev-4 # edit this to match your environment name
 
-  deploy-test:
-    uses: ./.github/workflows/deploy-template.yml
-    secrets: inherit
-    needs: [deploy-dev]
-    with:
-      AZURE_ENV_NAME: test # edit this to match your environment name
+  # deploy-test:
+  #   uses: ./.github/workflows/deploy-template.yml
+  #   secrets: inherit
+  #   needs: [deploy-dev]
+  #   with:
+  #     AZURE_ENV_NAME: ghni-test-4 # edit this to match your environment name
 
-  deploy-prod:
-    uses: ./.github/workflows/deploy-template.yml
-    secrets: inherit
-    needs: [deploy-test]
-    with:
-      AZURE_ENV_NAME: prod # edit this to match your environment name
+  # deploy-prod:
+  #   uses: ./.github/workflows/deploy-template.yml
+  #   secrets: inherit
+  #   needs: [deploy-test]
+  #   with:
+  #     AZURE_ENV_NAME: prod # edit this to match your environment name
