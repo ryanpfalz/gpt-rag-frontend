@@ -85,6 +85,7 @@ gh api --method PUT -H "Accept: application/vnd.github+json" repos/$org/$repo/en
 
 Configure the repository and environment variables: Delete the `AZURE_CLIENT_ID` and `AZURE_ENV_NAME` variables at the repository level as they aren't needed and only represent what was set for the environment you created last. `AZURE_CLIENT_ID` will be reconfigured at the environment level, and `AZURE_ENV_NAME` will be passed as an input to the deploy job.
 
+<!-- Are the below steps are necessary? -->
 ```bash
 gh variable delete AZURE_CLIENT_ID
 gh variable delete AZURE_ENV_NAME
