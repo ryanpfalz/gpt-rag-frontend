@@ -1,6 +1,6 @@
-# Multi-Environment GitHub Setup
+# Multi-Environment GitHub Setup - Frontend
 
-This document outlines the steps to set up a multi-environment workflow to deploy infrastructure and services to Azure using GitHub Actions, taking the solution from proof of concept to production-ready.
+This document outlines the steps to set up a multi-environment workflow to deploy the frontend service to Azure using GitHub Actions, taking the solution from proof of concept to production-ready.
 
 > [!NOTE]
 > Note that additional steps not currently covered in this guide may be required when working with the Zero Trust Architecture Deployment to handle deploying to a network-isolated environment.
@@ -12,7 +12,8 @@ This document outlines the steps to set up a multi-environment workflow to deplo
 - Decisions on which GitHub repository, Azure subscription, and Azure location to use
 
 # Prerequisites:
-- Assumes that the infrastructure creation already completed using GPT-RAG-V2.
+
+- Assumes that the infrastructure creation is already completed using the guidance in the [GPT-RAG]() directory.
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-windows?tabs=azure-cli)
 - [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows)
 - [GitHub CLI](https://cli.github.com/)
@@ -27,6 +28,7 @@ This document outlines the steps to set up a multi-environment workflow to deplo
 # Steps:
 
 > [!NOTE]
+>
 > 1. All commands below are to be run in a Bash shell.
 > 2. This guide aims to provide automated/programmatic steps for pipeline setup where possible. Manual setup is also possible, but not covered extensively in this guide. Please read more about manual pipeline setup [here](https://github.com/Azure/azure-dev/blob/main/cli/azd/docs/manual-pipeline-config.md).
 
@@ -86,6 +88,7 @@ gh api --method PUT -H "Accept: application/vnd.github+json" repos/$org/$repo/en
 Configure the repository and environment variables: Delete the `AZURE_CLIENT_ID` and `AZURE_ENV_NAME` variables at the repository level as they aren't needed and only represent what was set for the environment you created last. `AZURE_CLIENT_ID` will be reconfigured at the environment level, and `AZURE_ENV_NAME` will be passed as an input to the deploy job.
 
 <!-- Are the below steps are necessary? -->
+
 ```bash
 gh variable delete AZURE_CLIENT_ID
 gh variable delete AZURE_ENV_NAME
@@ -99,8 +102,7 @@ test_client_id=$(az ad sp list --display-name $test_principal_name --query "[].a
 prod_client_id=$(az ad sp list --display-name $prod_principal_name --query "[].appId" --output tsv)
 ```
 
-> [!NOTE]
-> _Alternative approach to get the client IDs in the above steps:_
+> [!NOTE] > _Alternative approach to get the client IDs in the above steps:_
 > In the event that there are multiple Service Principals containing the same name, the `az ad sp list` command executed above may not pull the correct ID. You may execute an alternate command to manually review the list of Service Principals by name and ID. The command to do this is exemplified below for the dev environment.
 >
 > ```bash
@@ -165,15 +167,18 @@ rm federated_id.json # clean up temp file
 
 ## 4. Modify the workflow files as needed for deployment
 
+### Updating environment names
+
 > [!IMPORTANT]
+>
 > - The environment names in the below described `azure-dev.yml` **need to be edited to match the environment names you created**.
 > - The `workflow_dispatch` in the `azure-dev.yml` file is set to trigger on push to a branch `none`. You may modify this to trigger on a specific branch or event.
 
-- The following files in the `.github/workflows` folder are used to deploy the infrastructure and services to Azure:
+- The following files in the `.github/workflows` folder are used to deploy the service to Azure:
   - `azure-dev.yml`
     - This is the main file that triggers the deployment workflow. The environment names are passed as inputs to the deploy job.
   - `deploy-template.yml`
-    - This is a template file invoked by `azure-dev.yml` that is used to deploy the infrastructure and services to Azure. This file needs to be edited if you are using client secret authentication.
+    - This is a template file invoked by `azure-dev.yml` that is used to deploy the service to Azure. This file needs to be edited if you are using client secret authentication.
 
 # Additional Resources:
 
