@@ -179,7 +179,3 @@ rm federated_id.json # clean up temp file
     - This is the main file that triggers the deployment workflow. The environment names are passed as inputs to the deploy job.
   - `deploy-template.yml`
     - This is a template file invoked by `azure-dev.yml` that is used to deploy the service to Azure. This file needs to be edited if you are using client secret authentication.
-
-# Additional Resources:
-
-- [Support multiple environments with `azd` (github.com)](https://github.com/jasontaylordev/todo-aspnetcore-csharp-sqlite/blob/main/OPTIONAL_FEATURES.md)
