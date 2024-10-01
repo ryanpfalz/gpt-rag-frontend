@@ -64,19 +64,34 @@ jobs:
       # Create new environment
       - name: Check if '${{ inputs.AZURE_ENV_NAME }}' environment exists
         id: check-env
-        shell: bash
+        shell: pwsh
+        # run: |
+        #   if azd env list | grep -q ${{ inputs.AZURE_ENV_NAME }}; then
+        #     echo "${{ inputs.AZURE_ENV_NAME }} environment already exists"
+        #     echo "::set-output name=env_exists::true"
+        #   else
+        #     echo "${{ inputs.AZURE_ENV_NAME }} environment does not exist"
+        #     echo "::set-output name=env_exists::false"
+        #   fi
         run: |
-          if azd env list | grep -q ${{ inputs.AZURE_ENV_NAME }}; then
-            echo "${{ inputs.AZURE_ENV_NAME }} environment already exists"
-            echo "::set-output name=env_exists::true"
-          else
-            echo "${{ inputs.AZURE_ENV_NAME }} environment does not exist"
-            echo "::set-output name=env_exists::false"
-          fi
+          $envExists = $false
+          azd env list | ForEach-Object {
+              $envName = ($_ -split "\s+")[0]
+              if ($envName -eq ${{ inputs.AZURE_ENV_NAME }}) {
+                  $envExists = $true
+              }
+          }
+
+          if ($envExists) {
+              Write-Host "${{ inputs.AZURE_ENV_NAME }} environment already exists"
+              Write-Host "::set-output name=env_exists::true"
+          } else {
+              Write-Host "${{ inputs.AZURE_ENV_NAME }} environment does not exist"
+              Write-Host "::set-output name=env_exists::false"
+          }
 
       - name: Conditional step based on environment check
         # if: steps.check-env.outputs.env_exists == 'false'
-        shell: bash
         run: azd env new ${{ inputs.AZURE_ENV_NAME }} --no-prompt
         env:
           AZURE_ENV_NAME: ${{ inputs.AZURE_ENV_NAME }}
@@ -85,12 +100,10 @@ jobs:
 
       # Refresh environment
       - name: Refresh env
-        shell: bash
         run: azd env refresh
 
       # Package Services
       - name: Package Services
-        shell: bash
         run: azd package --no-prompt
         env:
           AZURE_ENV_NAME: ${{ inputs.AZURE_ENV_NAME }}
@@ -100,7 +113,6 @@ jobs:
       # Deploy Services
       # TODO update to only deploy service(s) which have changed with azd deploy <service>
       - name: Deploy Services
-        shell: bash
         run: azd deploy --no-prompt
         env:
           AZURE_ENV_NAME: ${{ inputs.AZURE_ENV_NAME }}
