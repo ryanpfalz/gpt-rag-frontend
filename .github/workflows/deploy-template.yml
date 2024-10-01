@@ -83,10 +83,10 @@ jobs:
           }
 
           if ($envExists) {
-              Write-Host "${{ inputs.AZURE_ENV_NAME }} environment already exists"
+              Write-Host "Environment already exists"
               Write-Host "::set-output name=env_exists::true"
           } else {
-              Write-Host "${{ inputs.AZURE_ENV_NAME }} environment does not exist"
+              Write-Host "Environment does not exist"
               Write-Host "::set-output name=env_exists::false"
           }
 
