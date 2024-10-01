@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     environment: ${{ inputs.AZURE_ENV_NAME }}
     env:
       AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
