@@ -1,6 +1,9 @@
 # GPT on your data Frontend
 
-Part of [GPT-RAG](https://github.com/Azure/gpt-rag)
+> [!IMPORTANT] 
+> - This repository is part of a collection of repositories. The solution infrastructure that the service in this repository is deployed to can be set up following the guidance in [GPT-RAG](https://github.com/Azure/gpt-rag).
+> - If you followed the guidance in [GPT-RAG](https://github.com/Azure/gpt-rag) to configure end-to-end multi-environment infrastructure with Azure DevOps or GitHub, you can continue to follow the [Azure DevOps](./docs/AZDO-SETUP.md) or [GitHub](./docs/GH-SETUP.md) guidance to set up and deploy the service in this repository to the infrastructure.
+
 
 ## Deploy (quickstart)
 
