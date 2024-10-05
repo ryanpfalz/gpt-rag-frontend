@@ -3,19 +3,16 @@
 This document outlines the steps to set up a multi-environment workflow to deploy the frontend service to Azure using GitHub Actions, taking the solution from proof of concept to production-ready.
 
 > [!IMPORTANT]
-> **This guide is part of a collection of guides to fully automate the end-to-end provisioning and deployment of this solution. The complete solution is made up of this repository (which deploys a service), and three additional repositories, which deploy either the infrastructure or other services. Following setup of the infrastructure as described in the [GPT-RAG](https://github.com/Azure/GPT-RAG/blob/main/docs/GH-SETUP.md) guide, the following steps need to be completed to enable the end-to-end automated deployment of this service. _The steps in the [GPT-RAG](https://github.com/Azure/GPT-RAG/blob/main/docs/GH-SETUP.md) guide must be completed first._**
+>
+> - To follow this guide, the infrastructure creation step must already be completed using the guidance in the [GPT-RAG](https://github.com/Azure/GPT-RAG) repository. This repository does not cover infrastructure creation, but rather the deployment of a service to the infrastructure.
+>
+> - This guide additionally assumes that Service Principals have been created for each environment using the guidance in the [GPT-RAG](https://github.com/Azure/GPT-RAG) repository.
 
 # Decisions required:
 
 - Whether to use federated identity or client secret for authentication
 
 # Prerequisites:
-
-> [!IMPORTANT]
->
-> - To follow this guide, the infrastructure creation step must already be completed using the guidance in the [GPT-RAG](https://github.com/Azure/GPT-RAG) repository. This repository does not cover infrastructure creation, but rather the deployment of a service to the infrastructure.
->
-> - This guide additionally assumes that Service Principals have been created for each environment using the guidance in the [GPT-RAG](https://github.com/Azure/GPT-RAG) repository.
 
 - [Azure CLI](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-windows?tabs=azure-cli)
 - [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows)
