@@ -170,7 +170,7 @@ If you opted to provision network isolated infrastructure with the [GPT-RAG](htt
 
 2. Upon login to Windows, install [Powershell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell-on-windows?view=powershell-7.4#installing-the-msi-package) on the VM - the other prerequisite tools are already installed on the VM.
 
-3. Follow the instructions in the [GitHub documentation](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/adding-self-hosted-runners#adding-a-self-hosted-runner-to-an-organization) install the self-hosted runner tooling on the VM. Ensure the runner is create at the organization level.
+3. Follow the instructions in the [GitHub documentation](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/adding-self-hosted-runners#adding-a-self-hosted-runner-to-an-organization) install the self-hosted runner tooling on the VM. Ensure the runner is created at the organization level.
 
 > [!CAUTION]
 > When prompted "Would you like to run the runner as service?" select **No**. If you don't, the runner will experience [known `azd` issues](https://github.com/Azure/azure-dev/issues/4282) when running jobs.
