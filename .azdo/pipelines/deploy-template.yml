@@ -7,38 +7,101 @@ parameters:
     type: string
     default: "dev"
     displayName: "Azure Service Connection Name"
+  - name: servicePrincipalId
+    type: string
+    displayName: "Environment-specific Azure Service Principal ID"
 
 steps:
   # - task: setup-azd@0
   #   displayName: Install azd
+
   - checkout: self
 
   # If you can't install above task in your organization, you can comment it and uncomment below task to install azd
-  - task: Bash@3
+  - task: PowerShell@2
     displayName: Install azd
     inputs:
       targetType: "inline"
       script: |
-        curl -fsSL https://aka.ms/install-azd.sh | bash
+        powershell -ex AllSigned -c "Invoke-RestMethod 'https://aka.ms/install-azd.ps1' | Invoke-Expression"
 
-  - pwsh: |
-      azd config set auth.useAzCliAuth "true"
-    displayName: Configure AZD to Use AZ CLI Authentication.
+  - task: AzureCLI@2
+    displayName: Configure AZD to Use AZ CLI Authentication
+    inputs:
+      addSpnToEnvironment: true
+      azureSubscription: ${{ parameters.serviceConnection }}
+      scriptType: ps
+      scriptLocation: inlineScript
+      inlineScript: |
+        azd config set auth.useAzCliAuth "true"
 
-  ##
-  ## [ Darani Sai G@14-08-2024 ] Removed Provision Infrastructure task, If infrastructure not providioned yet, Please gothrough GPT-RAG (v2) steps.
-  ## 
+  - task: AzureCLI@2
+    displayName: "Check if azd environment exists"
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      scriptType: "ps"
+      scriptLocation: "inlineScript"
+      inlineScript: |
+        $envExists = $false
+        azd env list | ForEach-Object {
+            $envName = ($_ -split "\s+")[0]
+            if ($envName -eq "${{ parameters.azureEnvName }}") {
+                $envExists = $true
+            }
+        }
+        if ($envExists) {
+            Write-Host "Environment already exists"
+            echo "##vso[task.setvariable variable=envExists]true"
+        } else {
+            Write-Host "Environment does not exist"
+            echo "##vso[task.setvariable variable=envExists]false"
+        }
+
+  - task: AzureCLI@2
+    displayName: "Create new azd environment"
+    condition: eq(variables['envExists'], 'false')
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      scriptType: "ps"
+      scriptLocation: "inlineScript"
+      inlineScript: |
+        azd env new ${{ parameters.azureEnvName }} --no-prompt
+    env:
+      AZURE_ENV_NAME: ${{ parameters.azureEnvName }}
+      AZURE_LOCATION: $(AZURE_LOCATION)
+      AZURE_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+
+  - task: AzureCLI@2
+    displayName: Refresh env
+    inputs:
+      addSpnToEnvironment: true
+      azureSubscription: ${{ parameters.serviceConnection }}
+      scriptType: ps
+      scriptLocation: inlineScript
+      inlineScript: |
+        # Azure CLI login with service principal using federated token
+        az login --service-principal -u ${{ parameters.servicePrincipalId }} --tenant $env:AZURE_TENANT_ID --federated-token $env:idToken -o none
+
+        # Run azd package
+        azd env refresh
+    env:
+      AZURE_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
+      AZURE_ENV_NAME: ${{ parameters.azureEnvName }}
+      AZURE_LOCATION: $(AZURE_LOCATION)
+      AZURE_SERVICE_CONNECTION: ${{ parameters.serviceConnection }}
 
   - task: AzureCLI@2
     displayName: Package Services
     inputs:
       addSpnToEnvironment: true
       azureSubscription: ${{ parameters.serviceConnection }}
-      scriptType: bash
+      scriptType: ps
       scriptLocation: inlineScript
       inlineScript: |
-        chmod -R 755 ./scripts
-        az login --service-principal -u $servicePrincipalId --tenant $tenantId --federated-token $idToken -o none
+        # Azure CLI login with service principal using federated token
+        az login --service-principal -u ${{ parameters.servicePrincipalId }} --tenant $env:AZURE_TENANT_ID --federated-token $env:idToken -o none
+
+        # Run azd package
         azd package --no-prompt
     env:
       AZURE_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
@@ -51,14 +114,21 @@ steps:
     inputs:
       addSpnToEnvironment: true
       azureSubscription: ${{ parameters.serviceConnection }}
-      scriptType: bash
+      scriptType: ps
       scriptLocation: inlineScript
       inlineScript: |
-        chmod -R 755 ./scripts
-        az login --service-principal -u $servicePrincipalId --tenant $tenantId --federated-token $idToken -o none
+        # Azure CLI login with service principal using federated token
+        az login --service-principal -u ${{ parameters.servicePrincipalId }} --tenant $env:AZURE_TENANT_ID --federated-token $env:idToken -o none
+
+        # Run azd package
         azd deploy --no-prompt
     env:
       AZURE_SUBSCRIPTION_ID: $(AZURE_SUBSCRIPTION_ID)
       AZURE_ENV_NAME: ${{ parameters.azureEnvName }}
       AZURE_LOCATION: $(AZURE_LOCATION)
       AZURE_SERVICE_CONNECTION: ${{ parameters.serviceConnection }}
+
+  - task: DeleteFiles@1
+    displayName: Delete working files
+    inputs:
+      SourceFolder: "$(Agent.WorkFolder)"
