@@ -193,3 +193,7 @@ If you opted to provision network isolated infrastructure with the [GPT-RAG](htt
 ### Updating runner configuration (if using a self-hosted runner)
 
 - If you are using a self-hosted runner, you will need to update the runner configuration. The runner configuration is set in the `runs-on` field in the `.github/workflows/deploy-template.yml` workflow file. The value to set in this field can be found in the runner configuration settings in the GitHub organization.
+
+## Next steps
+
+If you haven't deployed the [Orchestrator](https://github.com/Azure/gpt-rag-orchestrator) or [Ingestion](https://github.com/Azure/gpt-rag-ingestion) services, deploy these next.

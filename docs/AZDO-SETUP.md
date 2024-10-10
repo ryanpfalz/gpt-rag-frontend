@@ -199,3 +199,7 @@ If you opted to provision network isolated infrastructure with the [GPT-RAG](htt
 ### Updating agent configuration (if using a self-hosted agent)
 
 - If you are using a self-hosted agent, you will need to update the YAML configuration. The value [set in the `pool`](https://learn.microsoft.com/en-us/azure/devops/pipelines/yaml-schema/pool?view=azure-pipelines#examples-1) field in the `.azdo/pipelines/azure-dev.yml` file is the pool that the agent was created in. This can be found in the Agent pools settings in the Azure DevOps organization or project.
+
+## Next steps
+
+If you haven't deployed the [Orchestrator](https://github.com/Azure/gpt-rag-orchestrator) or [Ingestion](https://github.com/Azure/gpt-rag-ingestion) services, deploy these next.
