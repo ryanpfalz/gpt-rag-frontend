@@ -97,26 +97,6 @@ export AZURE_DEVOPS_EXT_PAT=<your-pat>
 > [!CAUTION]
 > Do _not_ check your PAT into source control.
 
-<!-- Get the service connection set up for each environment in the GPT-RAG setup guide. In that guide, the service connection name is the same as the environment name. Note that that
-
-##### Dev
-
-```bash
-service_connection_name=$(az devops service-endpoint list --query "[?name=='$dev_env'].name" --output tsv)
-```
-
-##### Test
-
-```bash
-service_connection_name=$(az devops service-endpoint list --query "[?name=='$test_env'].name" --output tsv)
-```
-
-##### Production
-
-```bash
-service_connection_name=$(az devops service-endpoint list --query "[?name=='$prod_env'].name" --output tsv)
-``` -->
-
 Configure the default Azure DevOps organization and project:
 
 ```bash
@@ -172,8 +152,8 @@ If you opted to provision network isolated infrastructure with the [GPT-RAG](htt
 1. Log into the virtual machine with the user **gptrag** and authenticate with the password stored in the Key Vault, similar to the figure below:
    <img src="../media/readme-keyvault-login.png" alt="Key Vault Login" width="1024">
 
-   > [!TIP]
-   > If you get Error "You do not have access to List secrets for this resource", you need to be added as a Key Vault Secrets User in the Key Vault that starts with `bastionkv`.
+> [!TIP]
+> If you get Error "You do not have access to List secrets for this resource", you need to be added as a Key Vault Secrets User in the Key Vault that starts with `bastionkv`.
 
 2. Upon login to Windows, install the remaining build tools:
 
