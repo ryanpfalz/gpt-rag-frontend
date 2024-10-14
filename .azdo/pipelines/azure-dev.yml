@@ -4,22 +4,21 @@ trigger:
   # - main
   # - master
   - none
+
 # Azure Pipelines workflow to deploy to Azure using azd
 # To configure required secrets and service connection for connecting to Azure, simply run `azd pipeline config --provider azdo`
 # Task "Install azd" needs to install setup-azd extension for azdo - https://marketplace.visualstudio.com/items?itemName=ms-azuretools.azd
 # See below for alternative task to install azd if you can't install above task in your organization
 
 pool:
-  vmImage: ubuntu-latest
-  
+  vmImage: ubuntu-latest # uncomment if not using a self-hosted agent
+  # name: Default # uncomment and set to your custom agent pool if using a self-hosted agent
+
 # edit these to match the names of your environments
 variables:
   dev_env: dev
   test_env: test
   prod_env: prod
-  service: frontend
-
-  
 
 stages:
   - stage: "DeployDev"
@@ -34,7 +33,8 @@ stages:
                 - template: ./deploy-template.yml
                   parameters:
                     azureEnvName: "$(dev_env)"
-                    serviceConnection: "$(dev_env)-$(service)" # if your service connection name is different from the environment name, change this
+                    serviceConnection: "$(dev_env)"
+                    servicePrincipalId: $(AZURE_SERVICE_PRINCIPAL_ID_DEV)
 
   - stage: "DeployTest"
     displayName: "Deploy to the test environment"
@@ -50,7 +50,8 @@ stages:
                 - template: ./deploy-template.yml
                   parameters:
                     azureEnvName: "$(test_env)"
-                    serviceConnection: "$(test_env)-$(service)" # if your service connection name is different from the environment name, change this
+                    serviceConnection: "$(test_env)"
+                    servicePrincipalId: $(AZURE_SERVICE_PRINCIPAL_ID_TEST)
 
   - stage: "DeployProd"
     displayName: "Deploy to the prod environment"
@@ -66,4 +67,5 @@ stages:
                 - template: ./deploy-template.yml
                   parameters:
                     azureEnvName: "$(prod_env)"
-                    serviceConnection: "$(prod_env)-$(service)" # if your service connection name is different from the environment name, change this
+                    serviceConnection: "$(prod_env)"
+                    servicePrincipalId: $(AZURE_SERVICE_PRINCIPAL_ID_PROD)

@@ -1,4 +1,4 @@
-name: Multi-Environment Build and Deploy
+name: Multi-Environment Build and Deploy - Frontend
 
 on:
   workflow_dispatch:
