@@ -72,6 +72,7 @@ repo='<your-repo-name>'
 subscription_id=$(az account show --query "id" --output tsv)
 rg_location='<your-resource group-location>'
 tenant_id=$(az account show --query "tenantId" --output tsv)
+pipeline_name="Azure Dev Deploy ($repo)"
 ```
 
 Get the service principal IDs for each environment:
@@ -113,7 +114,7 @@ Create the Azure DevOps pipeline using the Az CLI:
 > - Choose to configure the pipeline to run on a specific branch by changing the `--branch` parameter.
 
 ```bash
-az pipelines create --name "Azure Dev Deploy ($repo)" --description "Pipeline for project: $repo" --repository $repo --branch '<your-branch>' --repository-type tfsgit --yml-path .azdo/pipelines/azure-dev.yml --skip-first-run true
+az pipelines create --name "$pipeline_name" --description "Pipeline for project: $repo" --repository $repo --branch '<your-branch>' --repository-type tfsgit --yml-path .azdo/pipelines/azure-dev.yml --skip-first-run true
 
 ```
 
@@ -125,7 +126,6 @@ Set up the variables for the pipeline that will deploy the service. `AZURE_LOCAT
 pipeline_id=$(az pipelines show --name "$pipeline_name" --query "id")
 
 az pipelines variable create --name 'AZURE_LOCATION' --value $rg_location --pipeline-id $pipeline_id
-az pipelines variable create --name 'AZURE_SERVICE_CONNECTION' --value $service_connection_name --pipeline-id $pipeline_id
 az pipelines variable create --name 'AZURE_SUBSCRIPTION_ID' --value $subscription_id --pipeline-id $pipeline_id
 az pipelines variable create --name 'AZURE_TENANT_ID' --value $tenant_id --pipeline-id $pipeline_id
 ```
