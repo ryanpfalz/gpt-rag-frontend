@@ -12,12 +12,13 @@ parameters:
     displayName: "Environment-specific Azure Service Principal ID"
 
 steps:
+  - checkout: self
+
+  # Uncomment the below task when using a Microsoft-hosted agent
   # - task: setup-azd@0
   #   displayName: Install azd
 
-  - checkout: self
-
-  # If you can't install above task in your organization, you can comment it and uncomment below task to install azd
+  # Uncomment the below task when using a self-hosted agent
   - task: PowerShell@2
     displayName: Install azd
     inputs:

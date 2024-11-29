@@ -138,7 +138,11 @@ az pipelines variable create --name 'AZURE_SERVICE_PRINCIPAL_ID_TEST' --value $t
 az pipelines variable create --name 'AZURE_SERVICE_PRINCIPAL_ID_PROD' --value $prod_service_principal_id --pipeline-id $pipeline_id
 ```
 
-## 3. Set up self-hosted agent for deploying to network isolated infrastructure (if applicable)
+## 3. Install `azd` Azure DevOps Task for deploying with Microsoft-hosted agent (if applicable)
+
+If you did not provision network isolated infrastructure with the [GPT-RAG](https://github.com/Azure/GPT-RAG) repository, you need to install the `azd` Azure DevOps task to deploy the services using the Microsoft-hosted agent. Get it free from the [Azure DevOps Marketplace](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.azd). You only need to do this in your organization once.
+
+## 4. Set up self-hosted agent for deploying to network isolated infrastructure (if applicable)
 
 If you opted to provision network isolated infrastructure with the [GPT-RAG](https://github.com/Azure/GPT-RAG) repository, you will need to set up a self-hosted agent to deploy the services.
 
@@ -163,12 +167,14 @@ If you opted to provision network isolated infrastructure with the [GPT-RAG](htt
 
 3. Follow the instructions in the [Azure DevOps documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/windows-agent?view=azure-devops#download-and-configure-the-agent) install the self-hosted agent tooling on the VM.
 
-## 4. Modify the workflow files as needed for deployment
+## 5. Modify the workflow files as needed for deployment
 
 > [!IMPORTANT]
 >
 > - The environment names are defined as variables within the below described `azure-dev.yml` file, **which need to be edited to match the environment names you created.** In this example, the environment name is also used as the service connection name. If you used different names for the environment name and service connection name, you will **also need to update the service connection parameter passed in each stage**.
 > - The `trigger` in the `azure-dev.yml` file is set to `none` to prevent the pipeline from running automatically. You can change this to `main` or `master` to trigger the pipeline on a push to the main branch.
+> - If deploying a non-network isolated solution, uncomment the `setup-azd@0` `Install azd` task in the `deploy-template.yml` file, and comment out the `PowerShell@2` `Install azd` task.
+> - If deploying a network isolated solution, uncomment the `PowerShell@2` `Install azd` task in the `deploy-template.yml` file, and comment out the `setup-azd@0` `Install azd` task.
 
 - The following files in the `.azdo/pipelines` folder are used to deploy the service to Azure:
   - `azure-dev.yml`

@@ -11,7 +11,7 @@ trigger:
 # See below for alternative task to install azd if you can't install above task in your organization
 
 pool:
-  vmImage: ubuntu-latest # uncomment if not using a self-hosted agent
+  vmImage: windows-latest # uncomment if not using a self-hosted agent
   # name: Default # uncomment and set to your custom agent pool if using a self-hosted agent
 
 # edit these to match the names of your environments
